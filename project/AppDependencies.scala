@@ -1,7 +1,4 @@
-import play.core.PlayVersion
-import play.sbt.PlayImport._
-import sbt.Keys.libraryDependencies
-import sbt._
+import sbt.*
 
 object AppDependencies {
 
@@ -9,16 +6,21 @@ object AppDependencies {
   private val hmrcMongoVersion = "1.6.0"
 
   val compile = Seq(
+    // format: OFF
     "uk.gov.hmrc"             %% "bootstrap-frontend-play-30" % bootstrapVersion,
-    "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30" % "8.2.0",
+    "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30" % "8.3.0",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-30"         % hmrcMongoVersion
+  // format: ON
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion            % Test,
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion            % Test,
-    "org.jsoup"               %  "jsoup"                      % "1.13.1"            % Test,
+    // format: OFF
+    "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion    % Test,
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion    % Test,
+    "org.jsoup"               %  "jsoup"                      % "1.17.2"            % Test,
+  // format: ON
   )
 
-  val it = Seq.empty
+  // only add additional dependencies here - it test inherit test dependencies above already
+  val it: Seq[ModuleID] = Seq.empty
 }
