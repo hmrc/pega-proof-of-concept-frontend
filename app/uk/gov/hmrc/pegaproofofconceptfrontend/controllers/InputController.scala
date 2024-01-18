@@ -38,8 +38,8 @@ class InputController @Inject() (
 )
   extends FrontendController(mcc) with Logging with I18nSupport {
 
-  val getStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
-    Future.successful(Ok(views.stringInputPage(createStringInputForm())))
+  val getStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { implicit request =>
+    Ok(views.stringInputPage(createStringInputForm()))
   }
 
   val submitStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>

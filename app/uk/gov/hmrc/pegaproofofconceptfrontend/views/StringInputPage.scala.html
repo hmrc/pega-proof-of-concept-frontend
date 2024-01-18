@@ -14,18 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.Aliases.{Hint, Input, Label, Text}
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorSummary, Hint, Input, Label, Text}
+@import uk.gov.hmrc.govukfrontend.views.Implicits._
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukButton, GovukInput}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.HmrcStandardPageParams
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage.errorMessageWithDefaultStringsTranslated
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
 @import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
 
 @this(  layout: Layout,
         govukInput: GovukInput,
         button: GovukButton,
+        errorSummary: uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary,
         formWithCsrf: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
 
@@ -40,6 +41,14 @@
 
 ) {
 
+@if(stringInputForm.hasErrors){
+    @errorSummary(
+        ErrorSummary(
+            title = Text("There is a problem"),
+        errorList = stringInputForm.errors.asTextErrorLinks
+    ))
+}
+
     <h1 class="govuk-heading-xl">Send a string to PEGA</h1>
     <p class="govuk-body govuk-!-margin-bottom-9">@{messages("service.text")}</p>
 
@@ -52,7 +61,9 @@
      id = "string",
      name = "string",
      hint = Some(Hint(content = Text("It can be up to 50 characters long"))),
-     label = Label(content = Text("Enter something to send"), classes = "govuk-!-font-weight-bold govuk-label--m")
+     label = Label(
+         content = Text("Enter something to send"),
+         classes = "govuk-!-font-weight-bold govuk-label--m")
     ).withFormField(stringInputForm("string"))
    )
     @button(Button(content = Text(messages("submit-button")),attributes = Map("id" -> "submit")))
