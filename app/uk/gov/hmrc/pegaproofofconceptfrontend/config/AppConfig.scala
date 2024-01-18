@@ -23,4 +23,14 @@ import play.api.Configuration
 class AppConfig @Inject() (config: Configuration) {
   val welshLanguageSupportEnabled: Boolean = config.getOptional[Boolean]("features.welsh-language-support").getOrElse(false)
 
+  object BaseUrl {
+    val platformHost: Option[String] = config.getOptional[String]("platform.frontend.host")
+    val pegaPocFrontend: String = platformHost.getOrElse(config.get[String]("baseUrl.pega-proof-of-concept-frontend"))
+    val gg: String = config.get[String]("baseUrl.gg")
+  }
+
+  object Urls {
+    val loginUrl: String = BaseUrl.gg
+    val signOutUrl: String = config.get[String]("baseUrl.sign-out")
+  }
 }
