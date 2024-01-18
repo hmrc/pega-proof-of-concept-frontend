@@ -1,5 +1,10 @@
 # microservice specific routes
 
 ->         /hmrc-frontend           hmrcfrontend.Routes
-GET        /                        uk.gov.hmrc.pegaproofofconceptfrontend.controllers.HelloWorldController.helloWorld
+
 GET        /assets/*file            controllers.Assets.versioned(path = "/public", file: Asset)
+
+GET        /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.getStringInput
+POST       /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.submitStringInput
+
+GET        /sign-out          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.signOut

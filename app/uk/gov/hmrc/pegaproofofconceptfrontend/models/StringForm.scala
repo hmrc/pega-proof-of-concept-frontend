@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.govukfrontend.views.html.components.Text
-@import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.HmrcStandardPageParams
+package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
-@this(layout: Layout)
+import play.api.data.Form
+import play.api.data.Forms.{mapping, nonEmptyText}
 
-@(
-        pageTitle: String,
-        heading: String,
-        message: String)(
-        implicit request: Request[_], messages: Messages)
+object StringForm {
 
-@layout(
- HmrcStandardPageParams(
-  pageTitle = Some(pageTitle)
- )
-){
-    <h1 class="govuk-heading-xl">@{Text(heading).asHtml}</h1>
-    <p class="govuk-body">@{Text(message).asHtml}</p>
+  def createStringInputForm(): Form[StringInputForm] = {
+    Form(mapping(
+      "string" -> nonEmptyText(maxLength = 50)
+    )(StringInputForm.apply)(StringInputForm.unapply))
+  }
 }
 
-@{
-    //$COVERAGE-OFF$
+final case class StringInputForm(string: String) {
+
 }
+

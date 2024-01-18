@@ -1,0 +1,61 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{Hint, Input, Label, Text}
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukButton, GovukInput}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.HmrcStandardPageParams
+@import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
+@import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.ServiceURLs
+
+@this(  layout: Layout,
+        govukInput: GovukInput,
+        button: GovukButton,
+        formWithCsrf: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+)
+
+
+@(stringInputForm: Form[StringInputForm])(implicit request: Request[_], messages: Messages)
+
+@layout(
+ HmrcStandardPageParams(
+  pageTitle = Some("MDTP Service - PEGA POC"),
+  serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.signOut.url))
+ )
+
+) {
+
+    <h1 class="govuk-heading-xl">Send a string to PEGA</h1>
+    <p class="govuk-body govuk-!-margin-bottom-9">@{messages("service.text")}</p>
+
+  @formWithCsrf(
+      action = uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.submitStringInput,
+      Symbol("id") -> "string"
+  ){
+   @govukInput(
+    Input(
+     id = "string",
+     name = "string",
+     hint = Some(Hint(content = Text("It can be up to 50 characters long"))),
+     label = Label(content = Text("Enter something to send"), classes = "govuk-!-font-weight-bold govuk-label--m")
+    ).withFormField(stringInputForm("string"))
+   )
+    @button(Button(content = Text(messages("submit-button")),attributes = Map("id" -> "submit")))
+  }
+
+}

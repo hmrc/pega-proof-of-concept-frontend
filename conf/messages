@@ -1,2 +1,3 @@
-service.name = pega-proof-of-concept-frontend
-service.text = This is your new service
+service.name = MDTP Service
+service.text = This page sends a string from an MDTP service to PEGA
+submit-button = Submit
