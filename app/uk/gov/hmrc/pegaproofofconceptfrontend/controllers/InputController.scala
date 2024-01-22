@@ -20,22 +20,24 @@ import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.pegaproofofconceptfrontend.config.AppConfig
+import uk.gov.hmrc.pegaproofofconceptfrontend.connectors.PegaProxyConnector
 import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedRequest}
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringForm.createStringInputForm
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{Payload, StringInputForm}
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class InputController @Inject() (
-    mcc:              MessagesControllerComponents,
-    authenticateUser: AuthenticatedAction,
-    views:            Views,
-    appConfig:        AppConfig
-)
+    mcc:                MessagesControllerComponents,
+    authenticateUser:   AuthenticatedAction,
+    views:              Views,
+    pegaProxyConnector: PegaProxyConnector,
+    appConfig:          AppConfig
+)(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with Logging with I18nSupport {
 
   val getStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { implicit request =>
@@ -49,7 +51,8 @@ class InputController @Inject() (
       },
       (validFormData: StringInputForm) => {
         logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
-        Future.successful(Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.getStringInput))
+        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map(_ =>
+          Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.FakePegaController.fakePegaPage))
       }
     )
   }

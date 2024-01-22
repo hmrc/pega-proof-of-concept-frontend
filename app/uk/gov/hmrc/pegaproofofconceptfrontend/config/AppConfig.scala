@@ -27,10 +27,14 @@ class AppConfig @Inject() (config: Configuration) {
     val platformHost: Option[String] = config.getOptional[String]("platform.frontend.host")
     val pegaPocFrontend: String = platformHost.getOrElse(config.get[String]("baseUrl.pega-proof-of-concept-frontend"))
     val gg: String = config.get[String]("baseUrl.gg")
+    val pegaProxy: String = config.get[String]("pega-proof-of-concept-proxy.baseUrl")
+
   }
 
   object Urls {
     val loginUrl: String = BaseUrl.gg
     val signOutUrl: String = config.get[String]("baseUrl.sign-out")
+    val pegaProxy: String = config.get[String]("pega-proof-of-concept-proxy-uris.submit-payload")
   }
+
 }
