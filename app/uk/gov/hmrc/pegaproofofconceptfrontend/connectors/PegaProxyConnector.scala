@@ -25,7 +25,6 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.config.AppConfig
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.Payload
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import cats.syntax.eq._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,8 +36,7 @@ class PegaProxyConnector @Inject() (client: HttpClientV2, config: AppConfig)(imp
     client.post(url"$pegaProxyUrl")
       .withBody(Json.toJson(payload))
       .execute[Either[UpstreamErrorResponse, HttpResponse]].map{
-        case Right(response) if response.status === 200 => response
-        case Right(response)                            => response
+        case Right(response) => response
         case Left(err) =>
           logger.warn("pega-proof-of-concept stubs connection failed with error")
           throw err

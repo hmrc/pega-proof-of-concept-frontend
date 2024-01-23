@@ -19,7 +19,8 @@ package uk.gov.hmrc.pegaproofofconceptfrontend.views
 import javax.inject.Inject
 
 class Views @Inject() (
-    val stringInputPage: uk.gov.hmrc.pegaproofofconceptfrontend.views.html.StringInputPage,
-    val fakePegaPage:    uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakePegaPage
+    val stringInputPage:           uk.gov.hmrc.pegaproofofconceptfrontend.views.html.StringInputPage,
+    val fakePegaPage:              uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakePegaPage,
+    val problemWithTheServicePage: uk.gov.hmrc.pegaproofofconceptfrontend.views.html.ProblemWithTheServicePage
 )
 

@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,21 @@
  *@
 
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
-@import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
 
-@this(  layout: Layout
-)
 
+@this(layout: Layout)
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request : Request[_], messages: Messages)
 
 @layout(
 HmrcStandardPageParams(
-pageTitle = Some("pega fake page"),
+pageTitle = Some("Sorry, there is a problem with the service"),
 serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.signOut.url))
 )
 
 ) {
 
-<h1 class="govuk-heading-xl">Fake Pega Page</h1>
-
+<h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
+<p class="govuk-body">Try again later.</p>
 }

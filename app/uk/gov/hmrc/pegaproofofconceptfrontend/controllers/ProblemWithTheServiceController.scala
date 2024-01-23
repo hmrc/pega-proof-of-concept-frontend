@@ -16,24 +16,23 @@
 
 package uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedRequest}
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class FakePegaController @Inject() (
-    mcc:              MessagesControllerComponents,
-    authenticateUser: AuthenticatedAction,
-    views:            Views
+class ProblemWithTheServiceController @Inject() (
+    mcc:   MessagesControllerComponents,
+    views: Views
 )()
-  extends FrontendController(mcc) with I18nSupport {
+  extends FrontendController(mcc) with Logging with I18nSupport {
 
-  val fakePegaPage: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { implicit request =>
-    Ok(views.fakePegaPage())
+  val problemWithTheService: Action[AnyContent] = Action { implicit request =>
+    Ok(views.problemWithTheServicePage())
   }
 
 }

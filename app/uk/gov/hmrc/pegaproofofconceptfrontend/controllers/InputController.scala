@@ -26,6 +26,7 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringForm.createStringInpu
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.{Payload, StringInputForm}
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import cats.syntax.eq._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,8 +52,10 @@ class InputController @Inject() (
       },
       (validFormData: StringInputForm) => {
         logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
-        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map(_ =>
-          Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.FakePegaController.fakePegaPage))
+        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map {
+          case response if response.status === 200 => Ok(views.fakePegaPage())
+          case _                                   => Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.ProblemWithTheServiceController.problemWithTheService)
+        }
       }
     )
   }
