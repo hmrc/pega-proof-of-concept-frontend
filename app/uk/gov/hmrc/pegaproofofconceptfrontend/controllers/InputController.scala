@@ -19,7 +19,7 @@ package uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.pegaproofofconceptfrontend.config.AppConfig
+import uk.gov.hmrc.pegaproofofconceptfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.pegaproofofconceptfrontend.connectors.PegaProxyConnector
 import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedRequest}
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringForm.createStringInputForm
@@ -36,6 +36,7 @@ class InputController @Inject() (
     mcc:                MessagesControllerComponents,
     authenticateUser:   AuthenticatedAction,
     views:              Views,
+    errorHandler:       ErrorHandler,
     pegaProxyConnector: PegaProxyConnector,
     appConfig:          AppConfig
 )(implicit ec: ExecutionContext)
@@ -56,7 +57,7 @@ class InputController @Inject() (
             logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
             Ok(views.fakePegaPage())
           }
-          case _                                   => Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.ProblemWithTheServiceController.problemWithTheService)
+          case _ => InternalServerError(errorHandler.internalServerErrorTemplate)
         }
       }
     )

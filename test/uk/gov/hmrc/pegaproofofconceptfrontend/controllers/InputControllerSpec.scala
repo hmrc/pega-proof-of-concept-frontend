@@ -71,30 +71,30 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
 
   "submitStringInput" should {
     "return 200" in {
-      forAll(nonEmptyStringGen) {nonEmptyString =>
-        stubFor(
-          post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
-            .willReturn(aResponse().withStatus(200))
-        )
+      stubFor(
+        post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
+          .willReturn(aResponse().withStatus(200))
+      )
 
+      forAll(nonEmptyStringGen) { nonEmptyString =>
         val result = controller.submitStringInput()(createFormFilledFakeRequest(nonEmptyString))
         status(result) shouldBe Status.OK
 
       }
     }
     "return a different status when returned with a different status from the controller" in {
+      stubFor(
+        post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
+          .willReturn(aResponse().withStatus(204))
+      )
+
       forAll(nonEmptyStringGen) { nonEmptyString =>
-        stubFor(
-          post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
-            .willReturn(aResponse().withStatus(204))
-        )
 
         externalWireMockServer.getStubMappings.forEach(println(_))
 
         val result = controller.submitStringInput()(createFormFilledFakeRequest(nonEmptyString))
 
-        status(result) shouldBe Status.SEE_OTHER
-        redirectLocation(result) shouldBe Some("/pega-proof-of-concept/problem-with-the-service")
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
   }

@@ -8,4 +8,3 @@ GET        /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 POST       /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.submitStringInput
 
 GET        /sign-out          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.signOut
-GET        /problem-with-the-service    uk.gov.hmrc.pegaproofofconceptfrontend.controllers.ProblemWithTheServiceController.problemWithTheService
