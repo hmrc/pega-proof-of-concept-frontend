@@ -1,7 +1,16 @@
+pega-proof-of-concept-frontend
+================================
 
-# pega-proof-of-concept-frontend
+Frontend microservice proof of concept for future PEGA work, submits a string to 
 
-This is a placeholder README.md for a new repository
+## Public API
+
+| Path                                                      | Description                                                |
+|-----------------------------------------------------------|------------------------------------------------------------|
+| [GET /pega-proof-of-concept-frontend/start](#get-start) | Starts the PEGA proof of concept string submission journey |
+
+## GET /start
+Journey start for the pega proof of concept string submission.
 
 ### License
 

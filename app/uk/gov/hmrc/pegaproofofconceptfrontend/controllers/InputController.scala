@@ -51,9 +51,11 @@ class InputController @Inject() (
         Future.successful((BadRequest(views.stringInputPage(formWithErrors))))
       },
       (validFormData: StringInputForm) => {
-        logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
         pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map {
-          case response if response.status === 200 => Ok(views.fakePegaPage())
+          case response if response.status === 200 => {
+            logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
+            Ok(views.fakePegaPage())
+          }
           case _                                   => Redirect(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.ProblemWithTheServiceController.problemWithTheService)
         }
       }
