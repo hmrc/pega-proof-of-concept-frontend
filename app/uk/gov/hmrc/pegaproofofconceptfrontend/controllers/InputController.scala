@@ -54,10 +54,13 @@ class InputController @Inject() (
       (validFormData: StringInputForm) => {
         pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map {
           case response if response.status === 200 => {
-            logger.info(s"SUBMITTED STRING: '${validFormData.string}' TO PEGA")
+            logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
             Ok(views.fakePegaPage())
           }
-          case _ => InternalServerError(errorHandler.internalServerErrorTemplate)
+          case response => {
+            logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status + " - response body: " + response.body)
+            InternalServerError(errorHandler.internalServerErrorTemplate)
+          }
         }
       }
     )
