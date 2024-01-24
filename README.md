@@ -1,7 +1,7 @@
 pega-proof-of-concept-frontend
 ================================
 
-Frontend microservice proof of concept for future PEGA work, submits a string to 
+Frontend microservice proof of concept for future PEGA work, submits a string to pega proof of concept backend.
 
 ## Public API
 
