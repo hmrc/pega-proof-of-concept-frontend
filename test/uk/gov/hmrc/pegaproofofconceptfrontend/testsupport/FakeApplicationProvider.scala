@@ -36,7 +36,8 @@ trait FakeApplicationProvider { this: GuiceFakeApplicationFactory with ExternalW
       .configure(
         "metrics.jvm" -> false,
         "metrics.enabled" -> false,
-        "pega-proof-of-concept-proxy.baseUrl" -> externalWireMockUrl
+        "microservice.services.pega-proof-of-concept-proxy.host" -> externalWireMockHost,
+        "microservice.services.pega-proof-of-concept-proxy.port" -> externalWireMockPort
       )
       .configure(overrideConfig)
       .overrides(overrideModules: _*)

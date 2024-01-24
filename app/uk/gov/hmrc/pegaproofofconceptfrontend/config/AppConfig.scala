@@ -18,16 +18,17 @@ package uk.gov.hmrc.pegaproofofconceptfrontend.config
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject() (config: Configuration) {
+class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig) {
   val welshLanguageSupportEnabled: Boolean = config.getOptional[Boolean]("features.welsh-language-support").getOrElse(false)
 
   object BaseUrl {
     val platformHost: Option[String] = config.getOptional[String]("platform.frontend.host")
     val pegaPocFrontend: String = platformHost.getOrElse(config.get[String]("baseUrl.pega-proof-of-concept-frontend"))
     val gg: String = config.get[String]("baseUrl.gg")
-    val pegaProxy: String = config.get[String]("pega-proof-of-concept-proxy.baseUrl")
+    val pegaProxy: String = servicesConfig.baseUrl("pega-proof-of-concept-proxy")
 
   }
 

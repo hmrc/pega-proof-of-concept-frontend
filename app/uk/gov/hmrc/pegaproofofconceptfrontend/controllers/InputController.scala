@@ -58,7 +58,7 @@ class InputController @Inject() (
             Ok(views.fakePegaPage())
           }
           case response => {
-            logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status + " - response body: " + response.body)
+            logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status.toString + " - response body: " + response.body)
             InternalServerError(errorHandler.internalServerErrorTemplate)
           }
         }
