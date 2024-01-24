@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pegaproofofconceptfrontend.views
+package uk.gov.hmrc.pegaproofofconceptfrontend.utils
 
-import javax.inject.Inject
+import org.scalacheck.Gen
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.Payload
 
-class Views @Inject() (
-    val stringInputPage: uk.gov.hmrc.pegaproofofconceptfrontend.views.html.StringInputPage,
-    val fakePegaPage:    uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakePegaPage
-)
-
+trait Generators {
+  val nonEmptyStringGen: Gen[String] = for {
+    length <- Gen.chooseNum(1, 50)
+    str <- Gen.listOfN(length, Gen.alphaChar).map(_.mkString)
+  } yield str
+  val nonEmptyPayload: Gen[Payload] = for {
+    value <- nonEmptyStringGen
+  } yield Payload(value)
+}

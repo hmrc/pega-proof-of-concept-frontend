@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pegaproofofconceptfrontend.views
+package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
-import javax.inject.Inject
+import play.api.libs.json.{Json, OFormat}
 
-class Views @Inject() (
-    val stringInputPage: uk.gov.hmrc.pegaproofofconceptfrontend.views.html.StringInputPage,
-    val fakePegaPage:    uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakePegaPage
-)
+final case class Payload(data: String)
 
+object Payload {
+
+  def fromStringInputForm(stringInputForm: StringInputForm): Payload = {
+    Payload(stringInputForm.string)
+  }
+
+  implicit val formats: OFormat[Payload] = Json.format[Payload]
+}
