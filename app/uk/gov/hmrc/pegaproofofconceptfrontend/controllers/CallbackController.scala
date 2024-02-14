@@ -23,8 +23,8 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{Authenticated
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import javax.inject.Inject
-
+import javax.inject.{Inject, Singleton}
+@Singleton
 class CallbackController @Inject() (
     mcc:              MessagesControllerComponents,
     authenticateUser: AuthenticatedAction,

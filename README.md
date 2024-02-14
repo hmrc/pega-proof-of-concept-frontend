@@ -12,7 +12,7 @@ Frontend microservice proof of concept for future PEGA work, submits a string to
 | Path                                                            | Description                                                |
 |-----------------------------------------------------------------|------------------------------------------------------------|
 | [GET /pega-proof-of-concept-frontend/start](#get-start)         | Starts the PEGA proof of concept string submission journey |
-| [GET /pega-proof-of-concept-frontend/callback/p](#get-callback) | Callback endpoint for pega proof of concept                |               
+| [GET /pega-proof-of-concept-frontend/callback?p](#get-callback) | Callback endpoint for pega proof of concept                |               
 
 ## GET /start
 Journey start for the pega proof of concept string submission.

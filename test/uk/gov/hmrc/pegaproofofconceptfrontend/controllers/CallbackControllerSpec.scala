@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.JsNull
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -52,6 +52,15 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   private val controller = app.injector.instanceOf[CallbackController]
 
   private val fakeRequest = FakeRequest()
+
+  "callback" should {
+    "redirect to returns" in {
+      val result = controller.callback("")(fakeRequest)
+
+      status(result) shouldBe Status.SEE_OTHER
+      redirectLocation(result) shouldBe Some("/pega-proof-of-concept/return")
+    }
+  }
 
   "returns" should {
     "open to the returns page" in {
