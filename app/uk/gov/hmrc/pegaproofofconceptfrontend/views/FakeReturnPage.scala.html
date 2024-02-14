@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.pegaproofofconceptfrontend.views
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
+@import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
+@import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
 
-import javax.inject.Inject
-
-class Views @Inject() (
-    val stringInputPage: uk.gov.hmrc.pegaproofofconceptfrontend.views.html.StringInputPage,
-    val fakePegaPage:    uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakePegaPage,
-    val fakeReturnPage:  uk.gov.hmrc.pegaproofofconceptfrontend.views.html.FakeReturnPage
+@this(  layout: Layout
 )
 
+
+@()(implicit request: Request[_], messages: Messages)
+
+@layout(
+HmrcStandardPageParams(
+pageTitle = Some("return page"),
+serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.signOut.url))
+)
+
+) {
+
+<h1 class="govuk-heading-xl">MDTP return page</h1>
+
+}

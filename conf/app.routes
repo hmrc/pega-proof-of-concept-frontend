@@ -8,3 +8,6 @@ GET        /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 POST       /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.submitStringInput
 
 GET        /sign-out          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.signOut
+
+GET        /callback/:p       uk.gov.hmrc.pegaproofofconceptfrontend.controllers.CallbackController.callback(p:String)
+GET        /return            uk.gov.hmrc.pegaproofofconceptfrontend.controllers.CallbackController.returns
