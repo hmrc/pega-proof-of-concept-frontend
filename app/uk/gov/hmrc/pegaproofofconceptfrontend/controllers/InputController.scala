@@ -52,7 +52,7 @@ class InputController @Inject() (
         Future.successful((BadRequest(views.stringInputPage(formWithErrors))))
       },
       (validFormData: StringInputForm) => {
-        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm(validFormData)).map {
+        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm()).map {
           case response if response.status === 200 => {
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
             Ok(views.fakePegaPage())

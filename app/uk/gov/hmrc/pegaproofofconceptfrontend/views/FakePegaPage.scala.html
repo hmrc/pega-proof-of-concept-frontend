@@ -14,11 +14,17 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorSummary, Hint, Input, Label, Text}
+@import uk.gov.hmrc.govukfrontend.views.Implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage.errorMessageWithDefaultStringsTranslated
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
 @import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
 
-@this(  layout: Layout
+@this(  layout: Layout,
+        button: GovukButton
 )
 
 
@@ -33,5 +39,9 @@ serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfronte
 ) {
 
 <h1 class="govuk-heading-xl">Fake Pega Page</h1>
+
+<form action= @uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.CallbackController.callback("HMRC-Debt-Work-AffordAssess") method=”get” class = GovukButton>
+    @button(Button(content = Text(messages("callback"))))
+</form>
 
 }
