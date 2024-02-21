@@ -21,7 +21,6 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
@@ -34,12 +33,10 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
-import uk.gov.hmrc.pegaproofofconceptfrontend.utils.Generators
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ExternalWireMockSupport with FakeApplicationProvider
-  with Generators with ScalaCheckDrivenPropertyChecks {
+class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ExternalWireMockSupport with FakeApplicationProvider {
 
   private val fakeAuthConnector = new AuthConnector {
     override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {

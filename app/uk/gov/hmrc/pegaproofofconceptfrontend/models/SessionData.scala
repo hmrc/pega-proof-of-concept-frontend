@@ -18,7 +18,7 @@ package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class SessionData(sessionId: SessionId, userInput: String, pegaJourneyResponse: StartJourneyResponseModel)
+final case class SessionData(sessionId: SessionId, userInput: String, pegaJourneyResponse: StartCaseResponse)
 
 object SessionData {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))

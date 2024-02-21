@@ -22,10 +22,12 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Logging
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.JsNull
+import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -33,18 +35,14 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
-import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
-import uk.gov.hmrc.pegaproofofconceptfrontend.utils.Generators
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.Logging
-import play.api.mvc.AnyContentAsFormUrlEncoded
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartJourneyResponseModel}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
+import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ExternalWireMockSupport with FakeApplicationProvider
-  with Generators with ScalaCheckDrivenPropertyChecks with Logging {
+  with Logging {
 
   private val fakeAuthConnector = new AuthConnector {
     override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
@@ -77,7 +75,7 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
   "submitStringInput" should {
     "return 200" in {
       stubFor(
-        post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
+        post(urlPathEqualTo("/pega-proof-of-concept-proxy/start-case"))
           .willReturn(aResponse().withStatus(200).withBody(
             """
               |{
@@ -100,7 +98,7 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
         Some(SessionData(
           SessionId("anything"),
           "nonEmptyString",
-          StartJourneyResponseModel(
+          StartCaseResponse(
             "HMRC-DEBT-WORK A-13002",
             "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
             "Perform",
@@ -111,18 +109,15 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
 
     "return a different status when returned with a different status from the controller" in {
       stubFor(
-        post(urlPathEqualTo("/pega-proof-of-concept-proxy/submit-payload"))
+        post(urlPathEqualTo("/pega-proof-of-concept-proxy/start-case"))
           .willReturn(aResponse().withStatus(204))
       )
 
-      forAll(nonEmptyStringGen) { nonEmptyString =>
+      externalWireMockServer.getStubMappings.forEach(println(_))
 
-        externalWireMockServer.getStubMappings.forEach(println(_))
+      val result = controller.submitStringInput()(createFormFilledFakeRequest("blah"))
 
-        val result = controller.submitStringInput()(createFormFilledFakeRequest(nonEmptyString))
-
-        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
-      }
+      status(result) shouldBe Status.INTERNAL_SERVER_ERROR
     }
   }
 

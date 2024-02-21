@@ -54,10 +54,10 @@ class InputController @Inject() (
       formWithErrors =>
         Future.successful((BadRequest(views.stringInputPage(formWithErrors)))),
       (validFormData: StringInputForm) =>
-        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm()).flatMap {
+        pegaProxyConnector.startCase().flatMap {
           case response if response.status === 200 =>
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
-            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, response.json.as[StartJourneyResponseModel]))
+            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, response.json.as[StartCaseResponse]))
               .map(_ => Redirect(appConfig.Urls.pegaRedirectUrl))
           case response =>
             logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status.toString + " - response body: " + response.body)
