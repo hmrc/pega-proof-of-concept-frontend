@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 
+import cats.syntax.eq._
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -23,10 +24,11 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.pegaproofofconceptfrontend.connectors.PegaProxyConnector
 import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedRequest}
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringForm.createStringInputForm
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{Payload, StringInputForm}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models._
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo.toSessionId
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import cats.syntax.eq._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,6 +40,7 @@ class InputController @Inject() (
     views:              Views,
     errorHandler:       ErrorHandler,
     pegaProxyConnector: PegaProxyConnector,
+    sessionRepo:        PegaSessionRepo,
     appConfig:          AppConfig
 )(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with Logging with I18nSupport {
@@ -48,21 +51,18 @@ class InputController @Inject() (
 
   val submitStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
     createStringInputForm().bindFromRequest().fold(
-      formWithErrors => {
-        Future.successful((BadRequest(views.stringInputPage(formWithErrors))))
-      },
-      (validFormData: StringInputForm) => {
-        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm()).map {
-          case response if response.status === 200 => {
+      formWithErrors =>
+        Future.successful((BadRequest(views.stringInputPage(formWithErrors)))),
+      (validFormData: StringInputForm) =>
+        pegaProxyConnector.submitPayloadToProxy(Payload.fromStringInputForm()).flatMap {
+          case response if response.status === 200 =>
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
-            Ok(views.fakePegaPage())
-          }
-          case response => {
+            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, response.json.as[StartJourneyResponseModel]))
+              .map(_ => Redirect(appConfig.Urls.pegaRedirectUrl))
+          case response =>
             logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status.toString + " - response body: " + response.body)
-            InternalServerError(errorHandler.internalServerErrorTemplate)
-          }
+            Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))
         }
-      }
     )
   }
 

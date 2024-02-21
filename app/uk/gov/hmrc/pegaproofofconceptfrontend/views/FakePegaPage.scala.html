@@ -28,7 +28,7 @@
 )
 
 
-@()(implicit request: Request[_], messages: Messages)
+@(caseId: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
 HmrcStandardPageParams(
@@ -40,7 +40,7 @@ serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfronte
 
 <h1 class="govuk-heading-xl">Fake Pega Page</h1>
 
-<form action= @uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.CallbackController.callback("HMRC-Debt-Work-AffordAssess") method=”get” class = GovukButton>
+<form action= @uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.CallbackController.callback(caseId) method=”get” class = GovukButton>
     @button(Button(content = Text(messages("callback"))))
 </form>
 

@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.pegaproofofconceptfrontend.repository
 
-import org.bson.codecs.Codec
 import org.mongodb.scala.model.{Filters, IndexModel, ReplaceOptions}
 import play.api.libs.json._
-import uk.gov.hmrc.pegaproofofconceptfrontend.repository.Repo.{Id, IdExtractor}
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.Repo.{Id, IdExtractor}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
@@ -31,7 +30,6 @@ abstract class Repo[ID, A: ClassTag](
     collectionName: String,
     mongoComponent: MongoComponent,
     indexes:        Seq[IndexModel],
-    extraCodecs:    Seq[Codec[_]],
     replaceIndexes: Boolean         = false
 )(implicit
     domainFormat: OFormat[A],
@@ -44,8 +42,7 @@ abstract class Repo[ID, A: ClassTag](
     collectionName = collectionName,
     domainFormat   = domainFormat,
     indexes        = indexes,
-    replaceIndexes = replaceIndexes,
-    extraCodecs    = extraCodecs
+    replaceIndexes = replaceIndexes
   ) {
 
   /**
@@ -59,12 +56,6 @@ abstract class Repo[ID, A: ClassTag](
     )
     .toFuture()
     .map(_ => ())
-
-  def findById(i: ID): Future[Option[A]] = collection
-    .find(
-      filter = Filters.eq("_id", id.value(i))
-    )
-    .headOption()
 }
 
 object Repo {

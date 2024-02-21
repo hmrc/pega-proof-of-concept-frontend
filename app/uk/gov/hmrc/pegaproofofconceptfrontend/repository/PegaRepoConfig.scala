@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pegaproofofconceptfrontend.utils
+package uk.gov.hmrc.pegaproofofconceptfrontend.repository
 
-import org.scalacheck.Gen
-import play.api.libs.json.Json
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.Payload
+import com.google.inject.Inject
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-trait Generators {
-  val nonEmptyStringGen: Gen[String] = for {
-    length <- Gen.chooseNum(1, 50)
-    str <- Gen.listOfN(length, Gen.alphaChar).map(_.mkString)
-  } yield str
-  val nonEmptyPayload: Gen[Payload] = for {
-    value <- nonEmptyStringGen
-  } yield Payload(value, "", "", Json.obj())
+import scala.concurrent.duration.Duration
+
+final case class PegaRepoConfig(expireMongo: Duration) {
+
+  @Inject
+  def this(servicesConfig: ServicesConfig) = {
+    this(servicesConfig.getDuration("mongodb.session-ttl"))
+  }
 }
