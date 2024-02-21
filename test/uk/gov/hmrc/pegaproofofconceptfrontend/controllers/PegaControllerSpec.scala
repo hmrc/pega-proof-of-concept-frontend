@@ -26,17 +26,19 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.JsNull
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ExternalWireMockSupport with FakeApplicationProvider {
+class PegaControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ExternalWireMockSupport with FakeApplicationProvider {
 
   private val fakeAuthConnector = new AuthConnector {
     override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
@@ -46,26 +48,32 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   override val overrideModules: Seq[GuiceableModule] = Seq(bind[AuthConnector].toInstance(fakeAuthConnector))
 
-  private val controller = app.injector.instanceOf[CallbackController]
+  private val controller = app.injector.instanceOf[PegaController]
 
-  private val fakeRequest = FakeRequest()
+  private val fakeRequest = FakeRequest().withSession("sessionId" -> "anything")
 
-  "callback" should {
-    "redirect to returns" in {
-      val result = controller.callback("")(fakeRequest)
+  private val pegaSessionRepo = app.injector.instanceOf[PegaSessionRepo]
 
-      status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result) shouldBe Some("/pega-proof-of-concept/return")
-    }
-  }
-
-  "returns" should {
-    "open to the returns page" in {
-      val result = controller.returns()(fakeRequest)
-      val doc: Document = Jsoup.parse(contentAsString(result))
+  "pegaPage" should {
+    "open the fake pega page" in {
+      val upsertResult = pegaSessionRepo.upsert(SessionData(
+        SessionId("anything"),
+        "nonEmptyString",
+        StartCaseResponse(
+          "HMRC-DEBT-WORK A-13002",
+          "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
+          "Perform",
+          "Pega-API-CaseManagement-Case"
+        )
+      ))
+      await(upsertResult) shouldBe (())
+      val result = controller.pegaPage(fakeRequest)
 
       status(result) shouldBe Status.OK
-      doc.select(".govuk-heading-xl").text() shouldBe "MDTP return page"
+
+      val doc: Document = Jsoup.parse(contentAsString(result))
+
+      doc.select("#callback").attr("href") shouldBe "/pega-proof-of-concept/callback?p=HMRC-DEBT-WORK+A-13002"
     }
   }
 }

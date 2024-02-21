@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pegaproofofconceptfrontend.utils
+package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
-import org.scalacheck.Gen
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.Payload
+import play.api.libs.json.{Json, OFormat}
 
-trait Generators {
-  val nonEmptyStringGen: Gen[String] = for {
-    length <- Gen.chooseNum(1, 50)
-    str <- Gen.listOfN(length, Gen.alphaChar).map(_.mkString)
-  } yield str
-  val nonEmptyPayload: Gen[Payload] = for {
-    value <- nonEmptyStringGen
-  } yield Payload(value)
+final case class SessionData(sessionId: SessionId, userInput: String, pegaJourneyResponse: StartCaseResponse)
+
+object SessionData {
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
+  implicit val format: OFormat[SessionData] = Json.format
 }

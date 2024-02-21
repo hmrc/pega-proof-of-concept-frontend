@@ -14,15 +14,16 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorSummary, Hint, Input, Label, Text}
+@import uk.gov.hmrc.govukfrontend.views.Implicits._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage.errorMessageWithDefaultStringsTranslated
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
 @import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
 
-@this(  layout: Layout
-)
+@this(layout: Layout)
 
-
-@()(implicit request: Request[_], messages: Messages)
+@(caseId: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
 HmrcStandardPageParams(
@@ -33,5 +34,8 @@ serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfronte
 ) {
 
 <h1 class="govuk-heading-xl">Fake Pega Page</h1>
+<a href="@uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.CallbackController.callback(caseId)" class="govuk-button" role="button" id="callback">
+ @messages("callback")
+</a>
 
 }

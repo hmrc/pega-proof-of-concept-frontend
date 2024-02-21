@@ -18,13 +18,11 @@ package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class Payload(data: String)
+final case class StartCaseResponse(ID: String, nextAssignmentID: String, nextPageID: String, pxObjClass: String)
 
-object Payload {
+object StartCaseResponse {
 
-  def fromStringInputForm(stringInputForm: StringInputForm): Payload = {
-    Payload(stringInputForm.string)
-  }
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
+  implicit val format: OFormat[StartCaseResponse] = Json.format
 
-  implicit val formats: OFormat[Payload] = Json.format[Payload]
 }
