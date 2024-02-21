@@ -30,6 +30,7 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo.toSessi
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,6 +50,8 @@ class InputController @Inject() (
     Ok(views.stringInputPage(createStringInputForm()))
   }
 
+  def urlEncode(value: String): String = URLEncoder.encode(value, "UTF-8")
+
   val submitStringInput: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
     createStringInputForm().bindFromRequest().fold(
       formWithErrors =>
@@ -57,8 +60,13 @@ class InputController @Inject() (
         pegaProxyConnector.startCase().flatMap {
           case response if response.status === 200 =>
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
-            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, response.json.as[StartCaseResponse]))
-              .map(_ => Redirect(appConfig.Urls.pegaRedirectUrl))
+            val startCaseResponse = response.json.as[StartCaseResponse]
+            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, startCaseResponse))
+              .map {
+                _ =>
+                  val queryString: String = s"?caseId=${urlEncode(startCaseResponse.ID)}&assignmentId=${urlEncode(startCaseResponse.nextAssignmentID)}"
+                  Redirect(appConfig.Urls.pegaRedirectUrl + queryString)
+              }
           case response =>
             logger.warn(s"[OPS-11581] failure to connect to proxy response status: " + response.status.toString + " - response body: " + response.body)
             Future.successful(InternalServerError(errorHandler.internalServerErrorTemplate))

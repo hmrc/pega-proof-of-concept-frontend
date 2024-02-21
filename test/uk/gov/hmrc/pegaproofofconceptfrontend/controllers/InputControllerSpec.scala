@@ -92,7 +92,8 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
       val result = controller.submitStringInput()(request)
 
       status(result) shouldBe Status.SEE_OTHER
-      redirectLocation(result) shouldBe Some("/pega-proof-of-concept/pega")
+      redirectLocation(result) shouldBe
+        Some("/pega-proof-of-concept/pega?caseId=HMRC-DEBT-WORK+A-13002&assignmentId=ASSIGN-WORKLIST+HMRC-DEBT-WORK+A-13002%21STARTAFFORDABILITYASSESSMENT_FLOW")
 
       await(pegaSessionRepo.findSession(request)) shouldBe
         Some(SessionData(
