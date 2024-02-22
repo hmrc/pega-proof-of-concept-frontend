@@ -35,7 +35,8 @@ class AppConfig @Inject() (config: Configuration, servicesConfig: ServicesConfig
   object Urls {
     val loginUrl: String = BaseUrl.gg
     val signOutUrl: String = config.get[String]("baseUrl.sign-out")
-    val pegaProxy: String = config.get[String]("pega-proof-of-concept-proxy-uris.start-case")
+    val pegaProxyStartCaseUrl: String = config.get[String]("pega-proof-of-concept-proxy-uris.start-case")
+    val pegaProxyGetCaseUrl: String = config.get[String]("pega-proof-of-concept-proxy-uris.get-case")
     val pegaRedirectUrl: String = config.get[String]("pega.redirect-url")
   }
 

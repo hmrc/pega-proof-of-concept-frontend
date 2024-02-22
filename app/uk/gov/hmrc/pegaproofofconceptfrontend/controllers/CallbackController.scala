@@ -16,29 +16,54 @@
 
 package uk.gov.hmrc.pegaproofofconceptfrontend.controllers
 
+import cats.syntax.eq._
 import play.api.Logging
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
+import uk.gov.hmrc.pegaproofofconceptfrontend.connectors.PegaProxyConnector
 import uk.gov.hmrc.pegaproofofconceptfrontend.controllers.actions.{AuthenticatedAction, AuthenticatedRequest}
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
 import uk.gov.hmrc.pegaproofofconceptfrontend.views.Views
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 @Singleton
 class CallbackController @Inject() (
     mcc:              MessagesControllerComponents,
     authenticateUser: AuthenticatedAction,
+    sessionRepo:      PegaSessionRepo,
+    connector:        PegaProxyConnector,
     views:            Views
-)
+)(implicit ec: ExecutionContext)
   extends FrontendController(mcc) with Logging with I18nSupport {
 
-  def callback(p: String): Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { _ =>
+  def callback(p: String): Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
     logger.info(s"query parameter was $p")
-    Redirect(routes.CallbackController.returns)
+    sessionRepo.findSession.flatMap {
+      case Some(sessionData) =>
+        if (sessionData.pegaJourneyResponse.ID === p)
+          connector.getCase(p).flatMap {
+            case response if response.status === 200 =>
+              sessionRepo.upsert(sessionData.copy(getCaseResponse = Some(response.json))).map(_ =>
+                Redirect(routes.CallbackController.returns))
+            case other =>
+              sys.error(s"call to get case came back with ${other.status.toString}")
+          }
+        else
+          sys.error(s"query parameter $p did not match caseId in mongo, ${sessionData.pegaJourneyResponse.ID}")
+      case None => throw NoSessionException
+    }
   }
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
+  val returns: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
+    sessionRepo.findSession.map {
+      case Some(sessionData) => Ok(views.fakeReturnPage(Json.toJson(sessionData)))
+      case None              => throw NoSessionException
+    }
 
-  val returns: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { implicit request =>
-    Ok(views.fakeReturnPage())
   }
 
 }

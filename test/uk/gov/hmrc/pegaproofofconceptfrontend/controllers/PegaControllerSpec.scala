@@ -64,7 +64,8 @@ class PegaControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSu
           "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
           "Perform",
           "Pega-API-CaseManagement-Case"
-        )
+        ),
+        None
       ))
       await(upsertResult) shouldBe (())
       val result = controller.pegaPage(fakeRequest)
