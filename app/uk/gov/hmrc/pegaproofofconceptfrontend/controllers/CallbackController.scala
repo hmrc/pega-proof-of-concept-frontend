@@ -57,7 +57,7 @@ class CallbackController @Inject() (
       case None => throw NoSessionException
     }
   }
-  @SuppressWarnings(Array("org.wartremover.warts.Any"))
+
   val returns: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
     sessionRepo.findSession.map {
       case Some(sessionData) => Ok(views.fakeReturnPage(Json.toJson(sessionData)))
