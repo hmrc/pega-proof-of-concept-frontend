@@ -61,7 +61,7 @@ class InputController @Inject() (
           case response if response.status === 200 =>
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
             val startCaseResponse = response.json.as[StartCaseResponse]
-            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, startCaseResponse))
+            sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, startCaseResponse, None))
               .map {
                 _ =>
                   val queryString: String = s"?caseId=${urlEncode(startCaseResponse.ID)}&assignmentId=${urlEncode(startCaseResponse.nextAssignmentID)}"

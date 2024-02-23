@@ -22,21 +22,23 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.config.AppConfig
+import cats.syntax.either._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PegaProxyConnector @Inject() (client: HttpClientV2, config: AppConfig)(implicit ec: ExecutionContext) extends Logging {
 
-  val pegaProxyUrl: String = config.BaseUrl.pegaProxy + config.Urls.pegaProxy
-  def startCase()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    client.post(url"$pegaProxyUrl")
-      .execute[Either[UpstreamErrorResponse, HttpResponse]].map{
-        case Right(response) => response
-        case Left(err) =>
-          logger.warn("pega-proof-of-concept stubs connection failed with error")
-          throw err
-      }
-  }
+  private val pegaProxyStartCaseUrl: String = config.BaseUrl.pegaProxy + config.Urls.pegaProxyStartCaseUrl
+  private val pegaProxyGetCaseUrl: String = config.BaseUrl.pegaProxy + config.Urls.pegaProxyGetCaseUrl
+  def startCase()(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    client.post(url"$pegaProxyStartCaseUrl")
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map(_.leftMap(throw _).merge)
+
+  def getCase(caseId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    client.get(url"$pegaProxyGetCaseUrl/$caseId")
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .map(_.leftMap(throw _).merge)
 
 }

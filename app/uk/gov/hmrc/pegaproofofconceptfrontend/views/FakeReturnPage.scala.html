@@ -17,12 +17,13 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
 @import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
+@import play.api.libs.json.{JsValue, Json}
 
 @this(  layout: Layout
 )
 
 
-@()(implicit request: Request[_], messages: Messages)
+@(value: JsValue)(implicit request: Request[_], messages: Messages)
 
 @layout(
 HmrcStandardPageParams(
@@ -33,5 +34,8 @@ serviceURLs = ServiceURLs(signOutUrl = Some(uk.gov.hmrc.pegaproofofconceptfronte
 ) {
 
 <h1 class="govuk-heading-xl">MDTP return page</h1>
+<p class=govuk-body>Session data is:</p>
+
+<pre class="jsonBody">@Json.prettyPrint(value)</pre>
 
 }
