@@ -76,7 +76,7 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
     "return 200" in {
       stubFor(
         post(urlPathEqualTo("/pega-proof-of-concept-proxy/start-case"))
-          .willReturn(aResponse().withStatus(200).withBody(
+          .willReturn(aResponse().withStatus(201).withBody(
             """
               |{
               |  "ID":"HMRC-DEBT-WORK A-13002",

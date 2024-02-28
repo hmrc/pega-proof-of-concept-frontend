@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+
 @Singleton
 class CallbackController @Inject() (
     mcc:              MessagesControllerComponents,
@@ -46,7 +47,7 @@ class CallbackController @Inject() (
       case Some(sessionData) =>
         if (sessionData.pegaJourneyResponse.ID === p)
           connector.getCase(p).flatMap {
-            case response if response.status === 200 =>
+            case response if response.status === OK =>
               sessionRepo.upsert(sessionData.copy(getCaseResponse = Some(response.json))).map(_ =>
                 Redirect(routes.CallbackController.returns))
             case other =>

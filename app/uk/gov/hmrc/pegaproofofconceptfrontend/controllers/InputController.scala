@@ -58,7 +58,7 @@ class InputController @Inject() (
         Future.successful((BadRequest(views.stringInputPage(formWithErrors)))),
       (validFormData: StringInputForm) =>
         pegaProxyConnector.startCase().flatMap {
-          case response if response.status === 200 =>
+          case response if response.status === CREATED =>
             logger.info(s"[OPS-11581] SUBMITTED STRING: '${validFormData.string}' TO PEGA")
             val startCaseResponse = response.json.as[StartCaseResponse]
             sessionRepo.upsert(SessionData(toSessionId(request), validFormData.string, startCaseResponse, None))
