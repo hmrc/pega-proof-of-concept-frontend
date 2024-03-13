@@ -6,7 +6,9 @@ GET        /assets/*file            controllers.Assets.versioned(path = "/public
 
 GET        /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.getStringInput
 POST       /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.submitStringInput
+
 GET        /pega              uk.gov.hmrc.pegaproofofconceptfrontend.controllers.PegaController.pegaPage
+POST       /pega              uk.gov.hmrc.pegaproofofconceptfrontend.controllers.PegaController.pegaPageContinue
 
 GET        /sign-out          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.signOut
 
