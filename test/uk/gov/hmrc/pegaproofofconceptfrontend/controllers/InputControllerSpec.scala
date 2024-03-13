@@ -35,6 +35,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
+import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
 import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.{CaseIdJourneyRepo, PegaSessionRepo}
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
@@ -58,11 +59,14 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
 
   private val caseIdJourneyRepo = app.injector.instanceOf[CaseIdJourneyRepo]
 
-  private val fakeRequest = FakeRequest()
-
   "getStringInput" should {
+    "return an error is no session id can be found" in {
+      val error = intercept[Exception](await(controller.getStringInput()(FakeRequest())))
+      error shouldBe a[NoSessionException.type]
+    }
+
     "return 200" in {
-      val result = controller.getStringInput()(fakeRequest)
+      val result = controller.getStringInput()(FakeRequest().withSession("sessionId" -> "blah"))
       val doc: Document = Jsoup.parse(contentAsString(result))
 
       status(result) shouldBe Status.OK
@@ -118,8 +122,6 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
         post(urlPathEqualTo("/pega-proof-of-concept-proxy/start-case"))
           .willReturn(aResponse().withStatus(204))
       )
-
-      externalWireMockServer.getStubMappings.forEach(println(_))
 
       val result = controller.submitStringInput()(createFormFilledFakeRequest("blah"))
 
