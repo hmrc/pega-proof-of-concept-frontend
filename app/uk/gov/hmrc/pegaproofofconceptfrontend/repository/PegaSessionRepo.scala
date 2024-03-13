@@ -17,6 +17,7 @@
 package uk.gov.hmrc.pegaproofofconceptfrontend.repository
 
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
+import play.api.Configuration
 import play.api.mvc.Request
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
@@ -25,14 +26,16 @@ import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo._
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.Repo.{Id, IdExtractor}
 
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
-final class PegaSessionRepo @Inject() (mongoComponent: MongoComponent, config: PegaRepoConfig)(implicit ec: ExecutionContext)
+@Singleton
+final class PegaSessionRepo @Inject() (mongoComponent: MongoComponent, config: Configuration)(implicit ec: ExecutionContext)
   extends Repo[SessionId, SessionData](
     collectionName = "pega-proof-of-concept",
     mongoComponent = mongoComponent,
-    indexes        = indexes(config.expireMongo.toSeconds),
+    indexes        = indexes(config.get[FiniteDuration]("mongodb.session-ttl").toSeconds),
     replaceIndexes = true
   ) {
 

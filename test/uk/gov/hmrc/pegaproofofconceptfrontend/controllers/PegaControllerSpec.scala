@@ -32,7 +32,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
@@ -60,7 +60,7 @@ class PegaControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSu
         SessionId("anything"),
         "nonEmptyString",
         StartCaseResponse(
-          "HMRC-DEBT-WORK A-13002",
+          CaseId("HMRC-DEBT-WORK A-13002"),
           "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
           "Perform",
           "Pega-API-CaseManagement-Case"
