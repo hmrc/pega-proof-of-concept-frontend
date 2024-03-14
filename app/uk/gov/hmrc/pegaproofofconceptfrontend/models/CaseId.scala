@@ -16,13 +16,26 @@
 
 package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
+import cats.Eq
+import play.api.libs.json.{Format, Json}
+import play.api.mvc.QueryStringBindable
 
-final case class StartCaseResponse(ID: CaseId, nextAssignmentID: String, nextPageID: String, pxObjClass: String)
+import java.net.URLEncoder
 
-object StartCaseResponse {
+final case class CaseId(value: String)
+
+object CaseId {
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  implicit val format: OFormat[StartCaseResponse] = Json.format
+  implicit val format: Format[CaseId] = Json.valueFormat[CaseId]
+
+  implicit val queryStringBindable: QueryStringBindable[CaseId] = new QueryStringBindable[CaseId] {
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, CaseId]] =
+      params.get(key).flatMap(_.headOption.map(s => Right(CaseId(s))))
+
+    def unbind(key: String, value: CaseId) = s"$key=${URLEncoder.encode(value.value, "UTF-8")}"
+  }
+
+  implicit val eq: Eq[CaseId] = Eq.fromUniversalEquals
 
 }

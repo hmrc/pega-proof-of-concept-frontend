@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+
 @Singleton
 class PegaController @Inject() (
     mcc:              MessagesControllerComponents,
@@ -33,12 +34,16 @@ class PegaController @Inject() (
     sessionRepo:      PegaSessionRepo
 )(implicit ec: ExecutionContext) extends FrontendController(mcc) {
 
-  val pegaPage: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
-    sessionRepo.findSession.map {
+  val pegaPage: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser) { implicit request =>
+    Ok(views.fakePegaPage())
+  }
 
-      case Some(sessionData) => Ok(views.fakePegaPage(sessionData.pegaJourneyResponse.ID))
+  val pegaPageContinue: Action[AnyContent] = Action.andThen[AuthenticatedRequest](authenticateUser).async { implicit request =>
+    sessionRepo.findSession.map {
+      case Some(sessionData) => Redirect(routes.CallbackController.callback(sessionData.pegaJourneyResponse.ID).url).withNewSession
       case None              => throw NoSessionException
     }
+
   }
 
 }

@@ -35,8 +35,9 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartCaseResponse}
-import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
+import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.{CaseIdJourneyRepo, PegaSessionRepo}
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,11 +57,16 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
 
   private val pegaSessionRepo = app.injector.instanceOf[PegaSessionRepo]
 
-  private val fakeRequest = FakeRequest()
+  private val caseIdJourneyRepo = app.injector.instanceOf[CaseIdJourneyRepo]
 
   "getStringInput" should {
+    "return an error is no session id can be found" in {
+      val error = intercept[Exception](await(controller.getStringInput()(FakeRequest())))
+      error shouldBe a[NoSessionException.type]
+    }
+
     "return 200" in {
-      val result = controller.getStringInput()(fakeRequest)
+      val result = controller.getStringInput()(FakeRequest().withSession("sessionId" -> "blah"))
       val doc: Document = Jsoup.parse(contentAsString(result))
 
       status(result) shouldBe Status.OK
@@ -95,18 +101,20 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
       redirectLocation(result) shouldBe
         Some("/pega-proof-of-concept/pega?caseId=HMRC-DEBT-WORK+A-13002&assignmentId=ASSIGN-WORKLIST+HMRC-DEBT-WORK+A-13002%21STARTAFFORDABILITYASSESSMENT_FLOW")
 
-      await(pegaSessionRepo.findSession(request)) shouldBe
-        Some(SessionData(
-          SessionId("anything"),
-          "nonEmptyString",
-          StartCaseResponse(
-            "HMRC-DEBT-WORK A-13002",
-            "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
-            "Perform",
-            "Pega-API-CaseManagement-Case"
-          ),
-          None
-        ))
+      val expectedSessionData = SessionData(
+        SessionId("anything"),
+        "nonEmptyString",
+        StartCaseResponse(
+          CaseId("HMRC-DEBT-WORK A-13002"),
+          "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
+          "Perform",
+          "Pega-API-CaseManagement-Case"
+        ),
+        None
+      )
+
+      await(pegaSessionRepo.findSession(request)) shouldBe Some(expectedSessionData)
+      await(caseIdJourneyRepo.findSession(CaseId("HMRC-DEBT-WORK A-13002"))) shouldBe Some(expectedSessionData)
     }
 
     "return a different status when returned with a different status from the controller" in {
@@ -114,8 +122,6 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
         post(urlPathEqualTo("/pega-proof-of-concept-proxy/start-case"))
           .willReturn(aResponse().withStatus(204))
       )
-
-      externalWireMockServer.getStubMappings.forEach(println(_))
 
       val result = controller.submitStringInput()(createFormFilledFakeRequest("blah"))
 

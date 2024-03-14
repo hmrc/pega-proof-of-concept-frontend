@@ -35,8 +35,8 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
 import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{SessionData, SessionId, StartCaseResponse}
-import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.repository.{CaseIdJourneyRepo, PegaSessionRepo}
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,6 +53,7 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   override def beforeEach(): Unit = {
     super.beforeEach()
     await(pegaSessionRepo.collection.drop().toFuture().map(_ => ())) shouldBe (())
+    await(caseIdJourneyRepo.collection.drop().toFuture().map(_ => ())) shouldBe (())
     ()
   }
 
@@ -61,6 +62,8 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   private val controller = app.injector.instanceOf[CallbackController]
 
   private val pegaSessionRepo = app.injector.instanceOf[PegaSessionRepo]
+
+  private val caseIdJourneyRepo = app.injector.instanceOf[CaseIdJourneyRepo]
 
   private val fakeRequest = FakeRequest().withSession("sessionId" -> "blah")
 
@@ -74,30 +77,41 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
         |""".stripMargin
     )
 
-    val initialSessionData = SessionData(SessionId("blah"), "beans", StartCaseResponse("id", "assignmentId", "pageId", "objclass"), None)
+    val caseId = CaseId("id")
+
+    val initialSessionData = SessionData(
+      SessionId("not-the-same-session-id-in-request"),
+      "beans",
+      StartCaseResponse(caseId, "assignmentId", "pageId", "objclass"),
+      None
+    )
 
     "redirect to returns when given a caseId that matches mongo and the case is retrieved successfully" in {
-
-      val mongoUpsertResult = pegaSessionRepo.upsert(initialSessionData)
+      val mongoUpsertResult = caseIdJourneyRepo.insertSession(caseId, initialSessionData)
       await(mongoUpsertResult) shouldBe (())
 
       stubFor(
-        get(urlPathEqualTo("/pega-proof-of-concept-proxy/case/id"))
+        get(urlPathEqualTo(s"/pega-proof-of-concept-proxy/case/${caseId.value}"))
           .willReturn(aResponse().withStatus(200).withBody(responseJson.toString()))
       )
 
-      val result = controller.callback("id")(fakeRequest)
+      val result = controller.callback(caseId)(fakeRequest)
 
       status(result) shouldBe Status.SEE_OTHER
       redirectLocation(result) shouldBe Some("/pega-proof-of-concept/return")
 
       val mongoFindResult = pegaSessionRepo.findSession(fakeRequest)
-      await(mongoFindResult) shouldBe Some(SessionData(SessionId("blah"), "beans", StartCaseResponse("id", "assignmentId", "pageId", "objclass"), Some(responseJson)))
+      await(mongoFindResult) shouldBe Some(SessionData(
+        SessionId("blah"),
+        "beans",
+        StartCaseResponse(CaseId("id"), "assignmentId", "pageId", "objclass"),
+        Some(responseJson)
+      ))
     }
 
-    "return an error when given a caseId that matches mongo and the case is not retrieved successfully" in {
+    "return an error when given a caseId that matches mongo but the case is not retrieved successfully" in {
 
-      val mongoUpsertResult = pegaSessionRepo.upsert(initialSessionData)
+      val mongoUpsertResult = caseIdJourneyRepo.insertSession(caseId, initialSessionData)
       await(mongoUpsertResult) shouldBe (())
 
       stubFor(
@@ -105,29 +119,38 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
           .willReturn(aResponse().withStatus(204).withBody(responseJson.toString()))
       )
 
-      val result = controller.callback("id")(fakeRequest)
+      val result = controller.callback(caseId)(fakeRequest)
 
       val exception = intercept[Exception](await(result))
       exception.getMessage shouldBe "call to get case came back with 204"
     }
 
     "return an error when given a caseId that does not match with mongo" in {
-
-      val mongoUpsertResult = pegaSessionRepo.upsert(initialSessionData)
+      val otherCaseId = CaseId("beans")
+      val mongoUpsertResult = caseIdJourneyRepo.insertSession(otherCaseId, initialSessionData)
       await(mongoUpsertResult) shouldBe (())
 
-      val result = controller.callback("beans")(fakeRequest)
+      val result = controller.callback(otherCaseId)(fakeRequest)
 
       val exception = intercept[Exception](await(result))
       exception.getMessage shouldBe "query parameter beans did not match caseId in mongo, id"
     }
 
     "return an error when no sessionId is found" in {
+      val mongoUpsertResult = caseIdJourneyRepo.insertSession(caseId, initialSessionData)
+      await(mongoUpsertResult) shouldBe (())
 
-      val result = controller.callback("beans")(FakeRequest())
+      val result = controller.callback(caseId)(FakeRequest())
 
       val exception = intercept[Exception](await(result))
       exception shouldBe NoSessionException
+    }
+
+    "return an error when no data is found in the caseIdJourney repo" in {
+      val result = controller.callback(caseId)(fakeRequest)
+
+      val exception = intercept[Exception](await(result))
+      exception.getMessage shouldBe "Could not find session data for case ID 'id'"
     }
 
   }
@@ -143,7 +166,12 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
           |""".stripMargin
       )
 
-      val initialSessionData = SessionData(SessionId("blah"), "beans", StartCaseResponse("id", "assignmentId", "pageId", "objclass"), Some(sessionJson))
+      val initialSessionData = SessionData(
+        SessionId("blah"),
+        "beans",
+        StartCaseResponse(CaseId("id"), "assignmentId", "pageId", "objclass"),
+        Some(sessionJson)
+      )
 
       val mongoUpsertResult = pegaSessionRepo.upsert(initialSessionData)
       await(mongoUpsertResult) shouldBe (())

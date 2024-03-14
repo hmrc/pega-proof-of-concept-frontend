@@ -6,9 +6,11 @@ GET        /assets/*file            controllers.Assets.versioned(path = "/public
 
 GET        /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.getStringInput
 POST       /start             uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.submitStringInput
+
 GET        /pega              uk.gov.hmrc.pegaproofofconceptfrontend.controllers.PegaController.pegaPage
+POST       /pega              uk.gov.hmrc.pegaproofofconceptfrontend.controllers.PegaController.pegaPageContinue
 
 GET        /sign-out          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.InputController.signOut
 
-GET        /callback          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.CallbackController.callback(p:String)
+GET        /callback          uk.gov.hmrc.pegaproofofconceptfrontend.controllers.CallbackController.callback(p: uk.gov.hmrc.pegaproofofconceptfrontend.models.CaseId)
 GET        /return            uk.gov.hmrc.pegaproofofconceptfrontend.controllers.CallbackController.returns

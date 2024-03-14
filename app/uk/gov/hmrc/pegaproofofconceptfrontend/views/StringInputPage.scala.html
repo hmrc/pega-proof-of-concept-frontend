@@ -18,18 +18,17 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits._
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukButton, GovukInput}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage.errorMessageWithDefaultStringsTranslated
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.{HmrcStandardPageParams, ServiceURLs}
 @import uk.gov.hmrc.pegaproofofconceptfrontend.models.StringInputForm
 @import uk.gov.hmrc.pegaproofofconceptfrontend.views.html.Layout
+@import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
 
 @this(  layout: Layout,
-        govukInput: GovukInput,
-        button: GovukButton,
-        errorSummary: uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary,
-        formWithCsrf: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+govukInput: GovukInput,
+button: GovukButton,
+errorSummary: uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary,
+formWithCsrf: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 )
-
 
 @(stringInputForm: Form[StringInputForm])(implicit request: Request[_], messages: Messages)
 
@@ -51,6 +50,10 @@
 
     <h1 class="govuk-heading-xl">Send a string to PEGA</h1>
     <p class="govuk-body govuk-!-margin-bottom-9">@{messages("service.text")}</p>
+
+    <p class="govuk-body govuk-!-margin-bottom-9">Current session ID is @{PegaSessionRepo.toSessionId(request).value}</p>
+
+
 
   @formWithCsrf(
       action = uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.InputController.submitStringInput,

@@ -23,6 +23,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.config.AppConfig
 import cats.syntax.either._
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.CaseId
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,8 +37,8 @@ class PegaProxyConnector @Inject() (client: HttpClientV2, config: AppConfig)(imp
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map(_.leftMap(throw _).merge)
 
-  def getCase(caseId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    client.get(url"$pegaProxyGetCaseUrl/$caseId")
+  def getCase(caseId: CaseId)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    client.get(url"$pegaProxyGetCaseUrl/${caseId.value}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map(_.leftMap(throw _).merge)
 
