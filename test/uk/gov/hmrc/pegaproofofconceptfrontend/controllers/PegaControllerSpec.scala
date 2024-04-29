@@ -35,7 +35,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
 import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{AssignmentId, CaseId, SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.PegaSessionRepo
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
@@ -92,10 +92,12 @@ class PegaControllerSpec extends AnyWordSpec
         SessionId("anything"),
         "nonEmptyString",
         StartCaseResponse(
-          CaseId("HMRC-DEBT-WORK A-13002"),
-          "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
-          "Perform",
-          "Pega-API-CaseManagement-Case"
+          StartCaseResponse.Data(
+            StartCaseResponse.CaseInfo(
+              List(StartCaseResponse.Assignment(AssignmentId("ASSIGN-WORKBASKET HMRC-DEBT-WORK A-40026!STARTAFFORDABILITYASSESSMENT_FLOW")))
+            )
+          ),
+          CaseId("HMRC-DEBT-WORK A-13002")
         ),
         None
       ))

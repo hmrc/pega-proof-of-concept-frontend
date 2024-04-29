@@ -17,10 +17,29 @@
 package uk.gov.hmrc.pegaproofofconceptfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.StartCaseResponse.Data
 
-final case class StartCaseResponse(ID: CaseId, nextAssignmentID: String, nextPageID: String, pxObjClass: String)
+final case class StartCaseResponse(data: Data, ID: CaseId)
 
 object StartCaseResponse {
+
+  final case class Assignment(ID: AssignmentId)
+
+  object Assignment {
+    implicit val format: OFormat[Assignment] = Json.format
+  }
+
+  final case class CaseInfo(assignments: List[Assignment])
+
+  object CaseInfo {
+    implicit val format: OFormat[CaseInfo] = Json.format
+  }
+
+  final case class Data(caseInfo: CaseInfo)
+
+  object Data {
+    implicit val format: OFormat[Data] = Json.format
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   implicit val format: OFormat[StartCaseResponse] = Json.format
