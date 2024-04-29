@@ -35,7 +35,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
 import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{AssignmentId, CaseId, SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.{CaseIdJourneyRepo, PegaSessionRepo}
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
@@ -67,6 +67,19 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   private val fakeRequest = FakeRequest().withSession("sessionId" -> "blah")
 
+  val caseId = CaseId("id")
+
+  val assignmentId = AssignmentId("assignmentId")
+
+  val startCaseResponse = StartCaseResponse(
+    StartCaseResponse.Data(
+      StartCaseResponse.CaseInfo(
+        List(StartCaseResponse.Assignment(assignmentId))
+      )
+    ),
+    caseId
+  )
+
   "callback" should {
 
     val responseJson = Json.parse(
@@ -77,12 +90,10 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
         |""".stripMargin
     )
 
-    val caseId = CaseId("id")
-
     val initialSessionData = SessionData(
       SessionId("not-the-same-session-id-in-request"),
       "beans",
-      StartCaseResponse(caseId, "assignmentId", "pageId", "objclass"),
+      startCaseResponse,
       None
     )
 
@@ -104,7 +115,7 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       await(mongoFindResult) shouldBe Some(SessionData(
         SessionId("blah"),
         "beans",
-        StartCaseResponse(CaseId("id"), "assignmentId", "pageId", "objclass"),
+        startCaseResponse,
         Some(responseJson)
       ))
     }
@@ -169,7 +180,7 @@ class CallbackControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       val initialSessionData = SessionData(
         SessionId("blah"),
         "beans",
-        StartCaseResponse(CaseId("id"), "assignmentId", "pageId", "objclass"),
+        startCaseResponse,
         Some(sessionJson)
       )
 

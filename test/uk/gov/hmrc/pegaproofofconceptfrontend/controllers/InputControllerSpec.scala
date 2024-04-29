@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.ExternalWireMockSupport
 import uk.gov.hmrc.mongo.cache.CacheIdType.SessionCacheId.NoSessionException
-import uk.gov.hmrc.pegaproofofconceptfrontend.models.{CaseId, SessionData, SessionId, StartCaseResponse}
+import uk.gov.hmrc.pegaproofofconceptfrontend.models.{AssignmentId, CaseId, SessionData, SessionId, StartCaseResponse}
 import uk.gov.hmrc.pegaproofofconceptfrontend.repository.{CaseIdJourneyRepo, PegaSessionRepo}
 import uk.gov.hmrc.pegaproofofconceptfrontend.testsupport.FakeApplicationProvider
 
@@ -85,10 +85,16 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
           .willReturn(aResponse().withStatus(201).withBody(
             """
               |{
-              |  "ID":"HMRC-DEBT-WORK A-13002",
-              |  "nextAssignmentID":"ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
-              |  "nextPageID":"Perform",
-              |  "pxObjClass":"Pega-API-CaseManagement-Case"
+              |  "data": {
+              |    "caseInfo": {
+              |      "assignments": [
+              |        {
+              |          "ID": "ASSIGN-WORKBASKET HMRC-DEBT-WORK A-40026!STARTAFFORDABILITYASSESSMENT_FLOW"
+              |        }
+              |      ]
+              |    }
+              |  },
+              |  "ID": "HMRC-DEBT-WORK A-40026"
               |}
               |""".stripMargin
           ))
@@ -99,22 +105,24 @@ class InputControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerS
 
       status(result) shouldBe Status.SEE_OTHER
       redirectLocation(result) shouldBe
-        Some("/pega-proof-of-concept/pega?caseId=HMRC-DEBT-WORK+A-13002&assignmentId=ASSIGN-WORKLIST+HMRC-DEBT-WORK+A-13002%21STARTAFFORDABILITYASSESSMENT_FLOW")
+        Some("/pega-proof-of-concept/pega?caseId=HMRC-DEBT-WORK+A-40026&assignmentId=ASSIGN-WORKBASKET+HMRC-DEBT-WORK+A-40026%21STARTAFFORDABILITYASSESSMENT_FLOW")
 
       val expectedSessionData = SessionData(
         SessionId("anything"),
         "nonEmptyString",
         StartCaseResponse(
-          CaseId("HMRC-DEBT-WORK A-13002"),
-          "ASSIGN-WORKLIST HMRC-DEBT-WORK A-13002!STARTAFFORDABILITYASSESSMENT_FLOW",
-          "Perform",
-          "Pega-API-CaseManagement-Case"
+          StartCaseResponse.Data(
+            StartCaseResponse.CaseInfo(
+              List(StartCaseResponse.Assignment(AssignmentId("ASSIGN-WORKBASKET HMRC-DEBT-WORK A-40026!STARTAFFORDABILITYASSESSMENT_FLOW")))
+            )
+          ),
+          CaseId("HMRC-DEBT-WORK A-40026")
         ),
         None
       )
 
       await(pegaSessionRepo.findSession(request)) shouldBe Some(expectedSessionData)
-      await(caseIdJourneyRepo.findSession(CaseId("HMRC-DEBT-WORK A-13002"))) shouldBe Some(expectedSessionData)
+      await(caseIdJourneyRepo.findSession(CaseId("HMRC-DEBT-WORK A-40026"))) shouldBe Some(expectedSessionData)
     }
 
     "return a different status when returned with a different status from the controller" in {

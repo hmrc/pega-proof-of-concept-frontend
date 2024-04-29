@@ -65,7 +65,8 @@ class InputController @Inject() (
 
             updateMongo(validFormData, startCaseResponse).map {
               _ =>
-                val queryString: String = s"?caseId=${urlEncode(startCaseResponse.ID.value)}&assignmentId=${urlEncode(startCaseResponse.nextAssignmentID)}"
+                val assignmentId = startCaseResponse.data.caseInfo.assignments.headOption.map(_.ID).getOrElse(sys.error("Could not find assignment id"))
+                val queryString: String = s"?caseId=${urlEncode(startCaseResponse.ID.value)}&assignmentId=${urlEncode(assignmentId.value)}"
                 Redirect(appConfig.Urls.pegaRedirectUrl + queryString)
             }
           case response =>

@@ -38,6 +38,10 @@ formWithCsrf: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 
 <h1 class="govuk-heading-xl">Fake Pega Page</h1>
 
+  <p class="govuk-body">
+   Continuing with the callback below will sign you out to simulate the change of session ID when PEGA redirect back to MDTP.
+  </p>
+
  @formWithCsrf(
   action = uk.gov.hmrc.pegaproofofconceptfrontend.controllers.routes.PegaController.pegaPageContinue
  ){

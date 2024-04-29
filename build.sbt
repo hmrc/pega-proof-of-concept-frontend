@@ -29,7 +29,7 @@ lazy val microservice = Project("pega-proof-of-concept-frontend", file("."))
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
   .settings(
     majorVersion        := 0,
-    scalaVersion        := "2.13.12",
+    scalaVersion        := "2.13.13",
     scalacOptions       ++= scalaCompilerOptions,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
